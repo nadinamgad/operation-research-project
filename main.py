@@ -346,9 +346,10 @@ def drawTableau():
     a = 0
     be = []
     while (a < len(cons_matrix)):
-        be = basic[a]
-        string_cons_matrix[a].insert(0, be[0])
-        string_cons_matrix[a].insert(1, be[1])
+        if a < len(basic):
+            be = basic[a]
+            string_cons_matrix[a].insert(0, be[0])
+            string_cons_matrix[a].insert(1, be[1])
         string_cons_matrix[a].append(RHS[a])
         a += 1
     # for i in range(len(ratio)):
@@ -397,9 +398,9 @@ def InitializeTableau():
     print('gee', string_cons_matrix)
     a = 0
     while (a < len(string_cons_matrix)):
-        RHS.insert(a, string_cons_matrix[a][len(string_cons_matrix)])
-        string_cons_matrix[a].remove(string_cons_matrix[a][len(string_cons_matrix)])
-        cons_matrix[a].remove(cons_matrix[a][len(cons_matrix)])
+        RHS.insert(a, string_cons_matrix[a][-1])
+        string_cons_matrix[a].remove(string_cons_matrix[a][-1])
+        cons_matrix[a].remove(cons_matrix[a][-1])
         a += 1
 
     # print(len(string_obj_fun_matrix), string_obj_fun_matrix)
@@ -428,9 +429,10 @@ def InitializeTableau():
     while (a < len(cons_matrix)):
         string_cons_matrix[a].extend(iden[a])
         cons_matrix[a].extend(iden[a])
-        be = basic[a]
-        string_cons_matrix[a].insert(0, be[0])
-        string_cons_matrix[a].insert(1, be[1])
+        if a < len(basic):
+            be = basic[a]
+            string_cons_matrix[a].insert(0, be[0])
+            string_cons_matrix[a].insert(1, be[1])
         string_cons_matrix[a].append(RHS[a])
         a += 1
     # print('Basic matrix', basic)
