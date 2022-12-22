@@ -1,50 +1,24 @@
-import numpy as np
-basic = [
-    ['s1', '0'],
-     ['x', '4']
-]
-cons = [
-    [1,2,1,0],
-    [6,2,0,1]
-]
+from scipy.optimize import linprog
 
-row = 1
-col = 0
+# declare the decision variable bounds
+x1_bounds = (0, None)
+x2_bounds = (0, None)
 
-# new value = old - (corr key col * corr row value)
+# declare coefficients of the objective function
+c = [-10, -5]
 
+# declare the inequality constraint matrix
+A = [[1,  1],
+     [10, 0],
+     [0,  5]]
 
-# a = basic[0][1] * cons[0][0]
-# a += basic[1][1] * cons[1][0]
-# a += basic[2][1] * cons[2][0]
-#
-# a = basic[0][1] * cons[0][1]
-# a += basic[1][1] * cons[1][1]
-# a += basic[2][1] * cons[2][1]
-#
-# a = basic[0][1] * cons[0][2]
-# a += basic[1][1] * cons[1][2]
-# a += basic[2][1] * cons[2][2]
-zj=[]
-a = 0
-b = 0
-print('et2y alah ', basic[a][1])
-while(b < len(cons[0])):
-    ans = 0
-    print('ff ', b)
-    while(a < len(basic)):
-        ans += int(basic[a][1]) * cons[a][b]
-        print('ans ', ans)
-        a+= 1
-    zj.insert(b, ans)
-    b += 1
-    a = 0
-print('zz ', zj)
+# declare the inequality constraint vector
+b = [24, 100, 100]
 
-cj_zj = []
+# solve
+results = linprog(c=c, A_ub=A, b_ub=b, bounds=[x1_bounds, x2_bounds], method='highs-ds')
 
-new_cons = np.copy(cons)
-print(new_cons)
-new_cons.tolist()
-for i in new_cons:
-    print(i[0])
+# print results
+if results.status == 0: print(f'The solution is optimal.')
+print(f'Objective value: z* = {results.fun}')
+print(f'Solution: x1* = {results.x[0]}, x2* = {results.x[1]}')

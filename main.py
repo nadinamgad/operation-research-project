@@ -2,10 +2,12 @@ import pandas as pd
 import tkinter as tk
 from tkinter import ttk
 import re
+import copy
 #from tkinter import *
 from tkinter import messagebox
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.optimize import linprog
 from tabulate import tabulate
 
 #coordinates are calculated wrong and graph only plots one graph
@@ -94,7 +96,6 @@ def Iterate():
     # cj_zj.clear()
     # ratio.clear()
     print('*********************************************************************')
-
 def consMatrixNewValues():
     global new_cons
     global cons_matrix
@@ -480,6 +481,48 @@ def MakeConstraintsMatrix(data):
         i += 1
 
     #print('constraints: ', cons_matrix)
+def calculateOptimalSolGraphical():
+    global obj_fun_matrix
+    global goal
+    lhs = []
+    rhs_ = []
+    obj_fun_matrix2 = []
+    if goal == 'max':
+        print('convert !')
+        obj_fun_matrix2 = copy.deepcopy(obj_fun_matrix)
+        i =0
+        while(i < len(obj_fun_matrix2)):
+            obj_fun_matrix2[i] *= -1
+            i += 1
+    lhs = copy.deepcopy(cons_matrix)
+    i=0
+    while(i<len(lhs)):
+        lhs[i].remove(lhs[i][-1])
+        i += 1
+
+    a = 0
+    while(a<len(cons_matrix)):
+        rhs_.insert(a, int(cons_matrix[a][-1]))
+        a += 1
+
+    a=0
+    bnd = []
+    while(a < len(obj_fun_matrix)):
+        bnd.append((0, float("inf")))
+        a += 1
+    x1_bounds = (0, None)
+    x2_bounds = (0, None)
+    opt = linprog(c=obj_fun_matrix2, A_ub=lhs, b_ub=rhs_, method='highs-ds')
+    if opt.status == 0: print(f'The solution is optimal.')
+    print(f'Objective value: z = {opt.fun * -1}')
+    print(f'Solution: x1 = {opt.x[0]}, x2 = {opt.x[1]}')
+    print(obj_fun_matrix)
+    print(obj_fun_matrix2)
+    print(cons_matrix)
+    print(lhs)
+    print(rhs_)
+    #print(opt)
+
 def Coordinates():
     global x_list
     global y_list
@@ -527,6 +570,7 @@ def PlotGraph():
         y_plot.append(y_list[i+1])
         plt.plot(x_plot, y_plot, color= cmap(i), linewidth=3,
              marker='o', markerfacecolor='black', markersize=12)
+        plt.fill_between(x_plot, 0, y_plot, color='pink', alpha=.2)
         x_plot.clear()
         y_plot.clear()
         i+=2
@@ -568,6 +612,7 @@ def collectoperators(data):
         i += 1
 def finalgraphicalmethod():
     Coordinates()
+    calculateOptimalSolGraphical()
     PlotGraph()
 def simplexMethod():
     checkoperators()
@@ -581,14 +626,22 @@ def simplexMethod():
 #old functions ------------------------------------------------------------------------------------------------------------------------------------------
 
 def mainf():
-    transform_con_text_to_matrix()
-    countDecisionVariables()
+    print('hi')
+    # transform_con_text_to_matrix()
+    # transform_obj_fun_to_matrix()
+    # countDecisionVariables()
+    # getcolumns()
+    # #print(cons_matrix)
+    # CheckMissingVariables()
+    # if len(obj_fun_matrix) <= 2:
+    #     finalgraphicalmethod()
+    #     simplexMethod()
+    # else:
+    #     simplexMethod()
     #print(cons_matrix)
-    CheckMissingVariables()
-    print(cons_matrix)
     #print('index_of_missed_letter: ', index_of_missed_letter)
-    Coordinates()
-    PlotGraph()
+    # Coordinates()
+    # PlotGraph()
 def countDecisionVariables():
     global numb_variables
     global decision_var1
@@ -648,8 +701,35 @@ def transform_con_text_to_matrix():
             temp3.remove(quantifier)
 
         cons_matrix.append(temp3)
+    a = 0
+    while (a < len(cons_matrix)):
+        j = 0
+        while(j< len(cons_matrix[a])):
+            cons_matrix[a][j] = int(cons_matrix[a][j])
+            j += 1
+        a += 1
     #print(cons_matrix)
     #print(cons_matrix_with_letters)
+def transform_obj_fun_to_matrix():
+    global obj_fun_matrix
+    quantifier = '+'
+    if obj_fun != None:
+        obj_fun_text = obj_fun.get()
+        print('obj fun: ', obj_fun_text)
+        obj_fun_matrix = (re.findall(r'[\d\.\-\+]+', obj_fun_text))
+        print('tmm: ', obj_fun_matrix)
+    if quantifier in obj_fun_matrix:
+        obj_fun_matrix.remove(quantifier)
+    a = 0
+    while(a<len(obj_fun_matrix)):
+        obj_fun_matrix[a] = int(obj_fun_matrix[a])
+        a += 1
+
+    print('obj matrix ', obj_fun_matrix)
+def getcolumns():
+    global columns
+    columns.extend(decision_var.get())
+    print('colss: ', columns)
 def drawgraph():
     #y = None
     a = 0
@@ -793,8 +873,10 @@ while(i<3):
 #print('obj func: ', obj_fun_matrix)
 #print('columns: ', columns)
 if len(obj_fun_matrix) <= 2:
+    #print(obj_fun_matrix)
+    #print(cons_matrix)
+    finalgraphicalmethod()
     simplexMethod()
-    #finalgraphicalmethod()
 else:
     simplexMethod()
 
