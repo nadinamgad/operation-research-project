@@ -154,6 +154,8 @@ def editbasic():
     global basic
     print(columns)
     print(temp_obj_fun_matrix)
+    print('pivot row: ', pivot_row_index)
+    print('basic: ', basic)
     basic[pivot_row_index][0] = columns[pivot_column_index]
     basic[pivot_row_index][1] = temp_obj_fun_matrix[pivot_column_index]
 
@@ -302,7 +304,7 @@ def createfirst2rows():
     global temp_obj_fun_matrix
     if all_slacks:
         i = 0
-        while (i < len(obj_fun_matrix)):
+        while (i < len(cons_matrix)):
             string = 's' + str(i + 1)
             columns.append(string)
             i += 1
